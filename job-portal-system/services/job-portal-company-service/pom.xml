@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.portal.job</groupId>
+		<artifactId>job-portal-service</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<!--
+            BUG 1 — ROOT CAUSE (same as before):
+            <relativePath/> was EMPTY, which tells Maven "do not look on disk;
+            fetch this parent artifact from the remote repository instead."
+            job-portal-service has never been published to Maven Central, so
+            Maven cannot resolve it, the parent chain breaks, and IntelliJ
+            cannot detect src/main/java as a source root.
+
+            ALWAYS point relativePath at the actual file on disk.
+        -->
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>job-portal-company-service</artifactId>
+	<!-- packaging defaults to 'jar' — correct for a runnable service, no need to declare it -->
+
+	<name>job-portal-company-service</name>
+	<description>Service for managing company profiles and documents</description>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.portal.job</groupId>
+			<artifactId>job-portal-common</artifactId>
+			<!-- version managed in root dependencyManagement -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!--
+            BUG 2: 'spring-boot-starter-webmvc' does not exist as a standalone artifact.
+            The correct artifact name is 'spring-boot-starter-web'.
+        -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!--
+            BUG 3: 'spring-boot-starter-data-jpa-test' and
+            'spring-boot-starter-webmvc-test' do not exist.
+            spring-boot-starter-test is the single correct test dependency.
+            It already includes: JUnit 5, Mockito, AssertJ, @DataJpaTest,
+            @WebMvcTest, and Spring Boot test auto-configuration.
+        -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<!-- Exclude Lombok from the repackaged fat-jar -->
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
