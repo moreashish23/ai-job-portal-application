@@ -1,6 +1,6 @@
 package com.portal.job.mapper;
 
-import
+
 import com.portal.job.dto.response.CompanyResponse;
 import com.portal.job.dto.response.JobResponse;
 import com.portal.job.modal.Job;
