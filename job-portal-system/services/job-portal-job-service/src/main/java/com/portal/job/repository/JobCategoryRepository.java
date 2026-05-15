@@ -9,7 +9,8 @@ import java.util.List;
 @Repository
 public interface JobCategoryRepository extends JpaRepository<JobCategory, Long> {
 
-    boolean existByName(String name);
+    boolean existsByName(String name);
+
     boolean existsBySlug(String slug);
 
     List<JobCategory> findByActiveTrue();

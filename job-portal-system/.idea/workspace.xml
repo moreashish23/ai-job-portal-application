@@ -4,11 +4,57 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c8da77-8768-4758-b794-4dfd947aac20" name="Changes" comment="" />
+    <list default="true" id="e7c8da77-8768-4758-b794-4dfd947aac20" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-lib/src/main/java/com/portal/job/domain/SkillCategory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-lib/src/main/java/com/portal/job/dto/response/JobSkillResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-lib/src/main/java/com/portal/job/dto/response/JobTagResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/controller/JobSkillController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/controller/JobTagController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/mapper/JobSkillMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/mapper/JobTagMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/modal/JobSkill.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/modal/JobTag.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/payload/JobSkillRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/payload/JobTagRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/repository/JobSkillRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/repository/JobTagRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/JobSkillService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/JobTagService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/impl/JobSkillServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/impl/JobTagServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-lib/src/main/java/com/portal/job/dto/response/JobResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-lib/src/main/java/com/portal/job/dto/response/JobResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/controller/JobController.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/controller/JobController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/mapper/JobMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/mapper/JobMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/modal/Job.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/modal/Job.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/repository/JobCategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/repository/JobCategoryRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/JobService.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/JobService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/impl/JobCategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/impl/JobCategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/impl/JobServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/job-portal-job-service/src/main/java/com/portal/job/service/impl/JobServiceImpl.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotChats">
+    <option name="panelChat">
+      <chat>
+        <option name="activeSessionId" value="5aa7f90a-cd97-40aa-85f6-bc63b8c34711" />
+        <option name="sessions">
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="5aa7f90a-cd97-40aa-85f6-bc63b8c34711" />
+            <option name="modeId" value="Ask" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
+        </option>
+        <option name="type" value="PANEL" />
+      </chat>
+    </option>
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
@@ -24,6 +70,21 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;moreashish23&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/moreashish23/ai-job-portal-application.git&quot;,
+    &quot;accountId&quot;: &quot;cb61a08d-1eca-4bb9-839e-45c5bff115ba&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 3
@@ -37,7 +98,10 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Spring Boot.JobPortalJobServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
   }
 }</component>

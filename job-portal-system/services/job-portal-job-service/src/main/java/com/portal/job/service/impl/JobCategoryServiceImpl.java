@@ -22,7 +22,7 @@ public class JobCategoryServiceImpl implements JobCategoryService {
     @Override
     public JobCategoryResponse createCategory(JobCategoryRequest req) throws Exception {
 
-        if(jobCategoryRepository.existByName(req.getName())) {
+        if(jobCategoryRepository.existsByName(req.getName())) {
             throw new Exception("Category with name already exists");
         }
 
@@ -39,6 +39,7 @@ public class JobCategoryServiceImpl implements JobCategoryService {
                 .slug(slug)
                 .iconUrl(req.getIconUrl())
                 .parent(parent)
+                .active(true)
                 .build();
 
         JobCategory saved = jobCategoryRepository.save(category);
@@ -66,7 +67,7 @@ public class JobCategoryServiceImpl implements JobCategoryService {
         JobCategory category = getCategoryEntityById(id);
 
         if(!category.getName().equals(req.getName()) &&
-        jobCategoryRepository.existByName(req.getName())) {
+        jobCategoryRepository.existsByName(req.getName())) {
             throw new Exception("Category with name already exists, choose different name");
         }
 

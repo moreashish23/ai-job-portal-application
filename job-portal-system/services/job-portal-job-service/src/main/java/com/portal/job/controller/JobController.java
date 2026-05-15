@@ -31,7 +31,7 @@ public class JobController {
             @RequestBody
             @Valid
             JobRequest jobRequest
-    ) {
+    ) throws Exception {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
