@@ -18,8 +18,12 @@ import com.portal.job.service.JobCategoryService;
 import com.portal.job.service.JobService;
 import com.portal.job.service.JobSkillService;
 import com.portal.job.service.JobTagService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -53,7 +57,7 @@ public class JobServiceImpl implements JobService {
                 Collections.emptySet();
 
 
-        Long companyId= 1L;
+//        Long companyId= 1L;
 
         Job job = Job.builder()
                 .title(req.getTitle())
@@ -61,7 +65,7 @@ public class JobServiceImpl implements JobService {
                 .requirements(req.getRequirements())
                 .responsibilities(req.getResponsibilities())
                 .benefits(req.getBenefits())
-                .companyId(companyId)
+                .companyId(req.getCompanyId())
                 .employerId(employerId)
                 .category(category)
                 .skills(skills)
@@ -96,12 +100,13 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobResponse> getJobs(JobSearchRequest request) {
-
-        List<Job> jobs = jobRepository.findAll(JobSpecification.build(request));
-        return jobs.stream().map(
-                this::convertToResponse
-        ).collect(Collectors.toList());
+    public Page<JobResponse> getJobs(JobSearchRequest request) {
+        Sort sort = request.getSortDir().equalsIgnoreCase("asc")
+                ? Sort.by(request.getSortBy()).ascending()
+                : Sort.by(request.getSortBy()).descending();
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+        return jobRepository.findAll(JobSpecification.build(request), pageable)
+                .map(this::convertToResponse);
     }
 
     @Override

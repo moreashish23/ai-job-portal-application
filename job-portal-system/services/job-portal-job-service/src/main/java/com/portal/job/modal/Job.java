@@ -13,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -25,7 +26,7 @@ import java.util.Set;
 public class Job {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -50,11 +51,21 @@ public class Job {
     @ManyToOne
      private JobCategory category;
 
-     @ManyToMany
-     private Set<JobSkill> skills;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "job_skill_mapping",
+            joinColumns = @JoinColumn(name = "job_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<JobSkill> skills = new HashSet<>();
 
-        @ManyToMany
-     private Set<JobTag> tags;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "job_tag_mapping",
+            joinColumns = @JoinColumn(name = "job_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<JobTag> tags = new HashSet<>();
 
     @Embedded
     private JobLocation location;

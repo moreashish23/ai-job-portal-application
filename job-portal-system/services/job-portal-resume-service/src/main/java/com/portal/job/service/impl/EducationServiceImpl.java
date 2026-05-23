@@ -8,6 +8,7 @@ import com.portal.job.payload.AddEducationRequest;
 import com.portal.job.repository.EducationRepository;
 import com.portal.job.service.EducationService;
 import com.portal.job.service.ResumeService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EducationServiceImpl implements EducationService {
 
     private final EducationRepository educationRepository;

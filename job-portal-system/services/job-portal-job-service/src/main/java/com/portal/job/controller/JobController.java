@@ -8,6 +8,7 @@ import com.portal.job.payload.JobSearchRequest;
 import com.portal.job.service.JobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,15 +52,8 @@ public class JobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JobResponse>> getJobs(
-
-            @ModelAttribute
-            JobSearchRequest req
-    ) {
-
-        return ResponseEntity.ok(
-                jobService.getJobs(req)
-        );
+    public ResponseEntity<Page<JobResponse>> getJobs(@ModelAttribute JobSearchRequest req) {
+        return ResponseEntity.ok(jobService.getJobs(req));
     }
 
     @GetMapping("/company/{companyId}")

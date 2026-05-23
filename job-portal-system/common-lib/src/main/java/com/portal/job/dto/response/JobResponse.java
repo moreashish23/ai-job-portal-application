@@ -26,6 +26,7 @@ public class JobResponse {
     private String benefits;
 
     private CompanyResponse company;
+    private Long companyId;
     private Long employerId;
 
     private JobCategoryResponse category;
@@ -61,5 +62,6 @@ public class JobResponse {
     private LocalDateTime updatedAt;
     private LocalDateTime publishedAt;
     private LocalDateTime closedAt;
+
 
 }

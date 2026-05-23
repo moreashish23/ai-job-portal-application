@@ -7,6 +7,10 @@ import com.portal.job.payload.JobSearchRequest;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+import com.portal.job.modal.JobSkill;
+import com.portal.job.modal.JobTag;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,6 +140,29 @@ public class JobSpecification {
                                 req.getMaxOpenings()
                         )
                 );
+            }
+
+            // keyword search (title + description)
+            if (req.getKeyword() != null && !req.getKeyword().isBlank()) {
+                String pattern = "%" + req.getKeyword().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
+                ));
+            }
+
+// skill filter (job must have AT LEAST ONE of the requested skills)
+            if (req.getSkillIds() != null && !req.getSkillIds().isEmpty()) {
+                Join<Job, JobSkill> skillJoin = root.join("skills", JoinType.INNER);
+                predicates.add(skillJoin.get("id").in(req.getSkillIds()));
+                query.distinct(true);
+            }
+
+// tag filter
+            if (req.getTagIds() != null && !req.getTagIds().isEmpty()) {
+                Join<Job, JobTag> tagJoin = root.join("tags", JoinType.INNER);
+                predicates.add(tagJoin.get("id").in(req.getTagIds()));
+                query.distinct(true);
             }
 
             // TODO : filter for tags, skills

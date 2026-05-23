@@ -10,11 +10,13 @@ import com.portal.job.service.ResumeService;
 import com.portal.job.service.WorkExperienceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class WorkExperienceServiceImpl implements WorkExperienceService {
 
     private final ResumeService resumeService;
@@ -115,7 +117,7 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 
     private void assertOwner(Resume resume, Long candidateId) throws Exception {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception(" Resume not found with id: " + candidateId);
+            throw new Exception(" Resume not found with id: ");
         }
     }
 }

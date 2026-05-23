@@ -21,7 +21,7 @@ import java.util.List;
 public class WorkExperience {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -52,6 +52,11 @@ public class WorkExperience {
     private String description;
 
     @ElementCollection
+    @CollectionTable(
+            name = "work_experience_technologies",
+            joinColumns = @JoinColumn(name = "work_experience_id")
+    )
+    @Column(name = "technology")
     private List<String> technologies = new ArrayList<>();
 
     @Column(nullable = false)

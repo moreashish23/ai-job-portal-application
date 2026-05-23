@@ -42,6 +42,9 @@ public class JobMapper {
                 .responsibilities(job.getResponsibilities())
                 .benefits(job.getBenefits())
 
+                .employerId(job.getEmployerId())
+                .companyId(job.getCompanyId())
+
                 .company(companyResponse)
 
               .category(JobCategoryMapper.toJobCategoryResponse(job.getCategory(), false ))

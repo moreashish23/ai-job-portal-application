@@ -3,6 +3,7 @@ package com.portal.job.service;
 import com.portal.job.dto.request.JobRequest;
 import com.portal.job.dto.response.JobResponse;
 import com.portal.job.payload.JobSearchRequest;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface JobService {
 
     JobResponse getJobById(Long id) throws Exception;
 
-    List<JobResponse> getJobs(JobSearchRequest request);
+    Page<JobResponse> getJobs(JobSearchRequest request);
 
     List<JobResponse> getJobsByCompany(Long companyId);
 

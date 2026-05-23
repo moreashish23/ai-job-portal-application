@@ -1,13 +1,9 @@
 package com.portal.job.mapper;
 
-import com.portal.job.dto.response.EducationResponse;
-import com.portal.job.dto.response.PersonalInfoResponse;
-import com.portal.job.dto.response.ResumeResponse;
-import com.portal.job.dto.response.ResumeSkillResponse;
-import com.portal.job.modal.Education;
-import com.portal.job.modal.PersonalInfo;
-import com.portal.job.modal.Resume;
-import com.portal.job.modal.ResumeSkill;
+import com.portal.job.dto.response.*;
+import com.portal.job.modal.*;
+
+import java.util.List;
 
 public class ResumeMapper {
 
@@ -30,7 +26,13 @@ public class ResumeMapper {
                 .build();
     }
 
-    public static ResumeResponse toResponse(Resume resume) {
+    public static ResumeResponse toResponse(Resume resume,
+                                            List<WorkExperienceResponse> workExperiences,
+                                            List<EducationResponse> educations,
+                                            List<ResumeSkillResponse> skills,
+                                            List<ProjectResponse> projects,
+                                            List<LanguageResponse> languages) {
+
 
         if (resume == null) return null;
 
@@ -46,6 +48,11 @@ public class ResumeMapper {
                 .completionScore(resume.getCompletionScore())
                 .createdAt(resume.getCreatedAt())
                 .updatedAt(resume.getUpdatedAt())
+                .workExperiences(workExperiences)
+                .educations(educations)
+                .skills(skills)
+                .projects(projects)
+                .languages(languages)
                 .build();
     }
 
@@ -77,6 +84,36 @@ public class ResumeMapper {
                 .isCurrentlyStudying(edu.getIsCurrentlyStudying())
                 .description(edu.getDescription())
                 .displayOrder(edu.getDisplayOrder())
+                .build();
+    }
+
+    public static ProjectResponse toProjectResponse(Project project){
+
+        if (project == null) return null;
+
+        return ProjectResponse.builder()
+                .id(project.getId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .technologies(project.getTechnologies())
+                .projectUrl(project.getProjectUrl())
+                .sourceCodeUrl(project.getSourceCodeUrl())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .isOngoing(project.getIsOngoing())
+                .displayOrder(project.getDisplayOrder())
+                .build();
+    }
+
+    public static LanguageResponse toLanguageResponse(Language lang){
+
+        if (lang == null) return null;
+
+        return LanguageResponse.builder()
+                .id(lang.getId())
+                .languageName(lang.getLanguageName())
+                .proficiency(lang.getProficiency())
+                .displayOrder(lang.getDisplayOrder())
                 .build();
     }
 }
