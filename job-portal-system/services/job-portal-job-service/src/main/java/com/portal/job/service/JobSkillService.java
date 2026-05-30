@@ -9,15 +9,15 @@ import java.util.Set;
 
 public interface JobSkillService {
 
-    JobSkillResponse createSkill(JobSkillRequest req) throws Exception;
+    JobSkillResponse createSkill(JobSkillRequest req)  ;
 
     List<JobSkillResponse> getAllSkills();
 
-    JobSkillResponse getSkillById(Long id) throws Exception;
+    JobSkillResponse getSkillById(Long id)  ;
 
-    JobSkillResponse updateSkill(Long id, JobSkillRequest req) throws Exception;
+    JobSkillResponse updateSkill(Long id, JobSkillRequest req) ;
 
-    void deleteSkill(Long id) throws Exception;
+    void deleteSkill(Long id) ;
 
 
     Set<JobSkill> getSkillsByIds(Set<Long> ids);

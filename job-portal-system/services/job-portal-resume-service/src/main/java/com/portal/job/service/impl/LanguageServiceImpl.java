@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.LanguageResponse;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.ResumeMapper;
 import com.portal.job.modal.Language;
 import com.portal.job.modal.Resume;
@@ -21,7 +23,7 @@ public class LanguageServiceImpl implements LanguageService {
     private final LanguageRepository languageRepository;
 
     @Override
-    public LanguageResponse addLanguage(Long resumeId, Long candidateId, AddLanguageRequest req) throws Exception {
+    public LanguageResponse addLanguage(Long resumeId, Long candidateId, AddLanguageRequest req)  {
         Resume resume = resumeService.getResumeEntity(resumeId);
 
         assertOwner(resume, candidateId);
@@ -52,10 +54,11 @@ public class LanguageServiceImpl implements LanguageService {
     }
 
     @Override
-    public LanguageResponse updateLanguage(Long languageId, Long resumeId, Long candidateId, AddLanguageRequest req) throws Exception {
+    public LanguageResponse updateLanguage(Long languageId, Long resumeId,
+                                           Long candidateId, AddLanguageRequest req) {
         Language lang = languageRepository.findById(languageId)
                 .orElseThrow(
-                        () -> new Exception("Language not found")
+                        () -> new ResourceNotFoundException("Language not found")
                 );
 
         assertOwner(lang.getResume(), candidateId);
@@ -73,11 +76,11 @@ public class LanguageServiceImpl implements LanguageService {
     }
 
     @Override
-    public void deleteLanguage(Long languageId, Long resumeId, Long candidateId) throws Exception {
+    public void deleteLanguage(Long languageId, Long resumeId, Long candidateId)   {
 
         Language lang = languageRepository.findById(languageId)
                 .orElseThrow(
-                        () -> new Exception("Language not found")
+                        () -> new ResourceNotFoundException("Language not found")
                 );
 
         assertOwner(lang.getResume(), candidateId);
@@ -86,9 +89,9 @@ public class LanguageServiceImpl implements LanguageService {
 
     }
 
-    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+    private void assertOwner(Resume resume, Long candidateId)  {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception(" Resume not found with id: " + candidateId);
+            throw new ForbiddenException("You do not have access to this resume.");
         }
     }
 }

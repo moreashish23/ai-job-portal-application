@@ -34,7 +34,7 @@ public class ResumeController {
     public ResponseEntity<ResumeResponse> getResumeById(
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 resumeService.getResumeById(resumeId, candidateId)
@@ -56,7 +56,7 @@ public class ResumeController {
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId,
             @RequestBody @Valid PersonalInfoResponse req
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 resumeService.updatePersonalInfo(
@@ -72,7 +72,7 @@ public class ResumeController {
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId,
             @RequestParam String summary
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 resumeService.updateSummary(
@@ -87,7 +87,7 @@ public class ResumeController {
     public ResponseEntity<ResumeResponse> setDefaultResume(
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId
-    ) throws Exception {
+    ) {
 
         return ResponseEntity.ok(
                 resumeService.setDefaultResume(
@@ -101,7 +101,7 @@ public class ResumeController {
     public ResponseEntity<ApiResponse> deleteResume(
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId
-    ) throws Exception {
+    ) {
 
         resumeService.deleteResume(
                 resumeId,

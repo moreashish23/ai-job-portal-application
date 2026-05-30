@@ -11,7 +11,7 @@ public interface ProjectService {
             Long resumeId,
             Long candidateId,
             AddProjectRequest req
-    ) throws Exception;
+    ) ;
 
     List<ProjectResponse> getAllProjects(Long resumeId);
 
@@ -20,11 +20,11 @@ public interface ProjectService {
             Long resumeId,
             Long candidateId,
             AddProjectRequest req
-    ) throws Exception;
+    ) ;
 
     void deleteProject(
             Long projectId,
             Long resumeId,
             Long candidateId
-    ) throws Exception;
+    ) ;
 }

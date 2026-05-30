@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.JobTagResponse;
+import com.portal.job.exception.BadRequestException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.JobTagMapper;
 import com.portal.job.modal.JobTag;
 import com.portal.job.payload.JobTagRequest;
@@ -22,10 +24,10 @@ public class JobTagServiceImpl implements JobTagService {
     private final JobTagRepository jobTagRepository;
 
     @Override
-    public JobTagResponse createTag(JobTagRequest req) throws Exception {
+    public JobTagResponse createTag(JobTagRequest req)   {
 
         if(jobTagRepository.existsByName(req.getName())) {
-            throw new Exception("Tag with name '"+req.getName()+"' already exists");
+            throw new BadRequestException("Tag with name '"+req.getName()+"' already exists");
         }
 
         String slug=generateUniqueSlug(req.getName());
@@ -47,7 +49,7 @@ public class JobTagServiceImpl implements JobTagService {
     }
 
     @Override
-    public JobTagResponse getById(Long id) throws Exception {
+    public JobTagResponse getById(Long id)   {
         JobTag  jobTag= getTagEntityById(id);
 
         return JobTagMapper.toTagResponse(jobTag);
@@ -55,19 +57,19 @@ public class JobTagServiceImpl implements JobTagService {
     }
 
     @Override
-    public JobTagResponse updateTag(Long id, JobTagRequest req) throws Exception {
+    public JobTagResponse updateTag(Long id, JobTagRequest req)   {
         JobTag  jobTag= getTagEntityById(id);
 
         if(!jobTag.getName().equals(req.getName()) &&
                 jobTagRepository.existsByName(req.getName())) {
-            throw new Exception("Tag with name '"+req.getName()+"' already exists");
+            throw new BadRequestException("Tag with name '"+req.getName()+"' already exists");
         }
         jobTag.setName(req.getName());
         return JobTagMapper.toTagResponse(jobTagRepository.save(jobTag));
     }
 
     @Override
-    public void deleteTag(Long id) throws Exception {
+    public void deleteTag(Long id)   {
 
         JobTag  jobTag= getTagEntityById(id);
         jobTagRepository.delete(jobTag);
@@ -76,14 +78,14 @@ public class JobTagServiceImpl implements JobTagService {
 
 
     @Override
-    public JobTag getTagEntityById(Long id) throws Exception {
+    public JobTag getTagEntityById(Long id)   {
         return jobTagRepository.findById(id).orElseThrow(
-                () -> new Exception("Job tag not found with ID: " + id)
+                () -> new ResourceNotFoundException("Job tag not found with ID: " + id)
         );
     }
 
     @Override
-    public Set<JobTag> getTagsByIds(Set<Long> ids) throws Exception {
+    public Set<JobTag> getTagsByIds(Set<Long> ids)   {
         List<JobTag> tags= jobTagRepository.findAllById(ids);
         return new HashSet<>(tags);
     }

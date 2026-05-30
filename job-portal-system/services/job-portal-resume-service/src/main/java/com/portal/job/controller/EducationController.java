@@ -24,7 +24,7 @@ public class EducationController {
             @PathVariable("resumeId") Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId,
             @RequestBody @Valid AddEducationRequest req
-    ) throws Exception {
+    ) {
 
         return ResponseEntity.ok(
                 educationService.addEducation(
@@ -38,7 +38,7 @@ public class EducationController {
     @GetMapping
     public ResponseEntity<List<EducationResponse>> getEducations(
             @PathVariable Long resumeId
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 educationService.getEducations(resumeId)
@@ -51,7 +51,7 @@ public class EducationController {
             @PathVariable Long educationId,
             @RequestHeader("X-User-Id") Long candidateId,
             @RequestBody @Valid AddEducationRequest req
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 educationService.updateEducation(
@@ -68,7 +68,7 @@ public class EducationController {
             @PathVariable Long resumeId,
             @PathVariable Long educationId,
             @RequestHeader("X-User-Id") Long candidateId
-    ) throws Exception {
+    )  {
 
         educationService.deleteEducation(
                 educationId,

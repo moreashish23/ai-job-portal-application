@@ -20,6 +20,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sesssion -> sesssion
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+// NOTE: JWT validation is performed at the API Gateway layer.
+// This service is not publicly exposed — only accessible via the internal Docker network.
+// Never expose service ports directly to the public internet.
                 .authorizeHttpRequests(auth ->  auth
                         .anyRequest().permitAll()
                 );

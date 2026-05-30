@@ -6,8 +6,8 @@ import com.portal.job.payload.SignupRequest;
 
 public interface AuthService {
 
-    AuthResponse signup(SignupRequest req) throws Exception;
+    AuthResponse signup(SignupRequest req) ;
 
-    AuthResponse login(LoginRequest req) throws Exception;
+    AuthResponse login(LoginRequest req) ;
 
 }

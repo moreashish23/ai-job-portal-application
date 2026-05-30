@@ -2,11 +2,13 @@ package com.portal.job.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,19 +17,21 @@ import java.util.Set;
 @Service
 public class JwtProvider {
 
-    private final SecretKey secretKey = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateToken(Authentication authentication, Long userId) {
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String roles = populateAuthorities(authorities);
-
         return Jwts.builder()
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 86400000))
                 .claim("email", authentication.getName())
-                .claim("authorities", roles)
+                .claim("authorities", populateAuthorities(authentication.getAuthorities()))
                 .claim("userId", userId)
-                .signWith(secretKey)
+                .signWith(getKey())
                 .compact();
     }
 

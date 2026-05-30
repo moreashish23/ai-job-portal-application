@@ -23,7 +23,7 @@ public class LanguageController {
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId,
             @RequestBody @Valid AddLanguageRequest addLanguageRequest
-    ) throws Exception {
+    ) {
 
         return ResponseEntity.ok(
                 languageService.addLanguage(
@@ -37,7 +37,7 @@ public class LanguageController {
     @GetMapping
     public ResponseEntity<List<LanguageResponse>> getLanguages(
             @PathVariable Long resumeId
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 languageService.getLanguages(resumeId)
@@ -50,7 +50,7 @@ public class LanguageController {
             @PathVariable Long languageId,
             @RequestHeader("X-User-Id") Long candidateId,
             @RequestBody @Valid AddLanguageRequest req
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 languageService.updateLanguage(
@@ -67,7 +67,7 @@ public class LanguageController {
             @PathVariable Long resumeId,
             @PathVariable Long languageId,
             @RequestHeader("X-User-Id") Long candidateId
-    ) throws Exception {
+    ) {
 
         languageService.deleteLanguage(
                 languageId,

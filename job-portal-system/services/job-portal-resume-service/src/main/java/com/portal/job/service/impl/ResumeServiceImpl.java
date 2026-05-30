@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.*;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.ResumeMapper;
 import com.portal.job.mapper.WorkExperienceMapper;
 import com.portal.job.modal.PersonalInfo;
@@ -54,7 +56,7 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public ResumeResponse getResumeById(Long resumeId, Long candidateId) throws Exception {
+    public ResumeResponse getResumeById(Long resumeId, Long candidateId)   {
         Resume resume = getResumeEntity(resumeId);
         assertOwner(resume, candidateId);
         return buildFullResponse(resume);
@@ -70,7 +72,8 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public ResumeResponse updatePersonalInfo(Long resumeId, Long candidateId, PersonalInfoResponse req) throws Exception {
+    public ResumeResponse updatePersonalInfo(Long resumeId, Long candidateId,
+                                             PersonalInfoResponse req)   {
 
         Resume resume = getResumeEntity(resumeId);
 
@@ -125,7 +128,7 @@ public class ResumeServiceImpl implements ResumeService {
 
 
     @Override
-    public ResumeResponse updateSummary(Long resumeId, Long candidateId, String summary) throws Exception {
+    public ResumeResponse updateSummary(Long resumeId, Long candidateId, String summary)  {
 
         Resume resume = getResumeEntity(resumeId);
 
@@ -138,7 +141,7 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public ResumeResponse setDefaultResume(Long resumeId, Long candidateId) throws Exception {
+    public ResumeResponse setDefaultResume(Long resumeId, Long candidateId) {
 
         Resume resume = getResumeEntity(resumeId);
 
@@ -155,7 +158,7 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public void deleteResume(Long resumeId, Long candidateId) throws Exception {
+    public void deleteResume(Long resumeId, Long candidateId) {
 
         Resume resume = getResumeEntity(resumeId);
 
@@ -168,9 +171,9 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public Resume getResumeEntity(Long resumeId) throws Exception {
+    public Resume getResumeEntity(Long resumeId) {
         return resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new Exception("Resume not found with id: " + resumeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Resume not found with id: " + resumeId));
     }
 
 
@@ -223,9 +226,9 @@ public class ResumeServiceImpl implements ResumeService {
         );
     }
 
-    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+    private void assertOwner(Resume resume, Long candidateId) {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception("Resume not Found with ID: " + resume.getId());
+            throw new ForbiddenException("You do not have access to this resume.");
         }
     }
 }

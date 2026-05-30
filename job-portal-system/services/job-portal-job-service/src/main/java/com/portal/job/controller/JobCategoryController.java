@@ -24,7 +24,7 @@ public class JobCategoryController {
     createCategory(
             @RequestBody @Valid
             JobCategoryRequest request
-    ) throws Exception {
+    )   {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -45,7 +45,7 @@ public class JobCategoryController {
     public ResponseEntity<JobCategoryResponse>
     getCategoryById(
             @PathVariable Long id
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 jobCategoryService.getCategoryById(id)
@@ -57,7 +57,7 @@ public class JobCategoryController {
     updateCategory(
             @PathVariable Long id,
             @RequestBody @Valid JobCategoryRequest req
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 jobCategoryService.updateCategory(id, req)
@@ -68,7 +68,7 @@ public class JobCategoryController {
     public ResponseEntity<ApiResponse>
     deleteCategory(
             @PathVariable Long id
-    ) throws Exception {
+    )   {
 
         jobCategoryService.deleteCategory(id);
 

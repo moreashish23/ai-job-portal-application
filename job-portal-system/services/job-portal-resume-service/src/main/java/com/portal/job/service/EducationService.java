@@ -11,7 +11,7 @@ public interface EducationService {
             Long resumeId,
             Long candidateId,
             AddEducationRequest request
-    ) throws Exception;
+    );
 
     List<EducationResponse> getEducations(Long resumeId);
 
@@ -20,11 +20,11 @@ public interface EducationService {
             Long resumeId,
             Long candidateId,
             AddEducationRequest req
-    ) throws Exception;
+    ) ;
 
     void deleteEducation(
             Long educationId,
             Long resumeId,
             Long candidateId
-    ) throws Exception;
+    ) ;
 }

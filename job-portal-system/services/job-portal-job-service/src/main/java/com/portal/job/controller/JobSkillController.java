@@ -22,7 +22,7 @@ public class JobSkillController {
     @PostMapping
     public ResponseEntity<JobSkillResponse> createSkill(
             @RequestBody @Valid JobSkillRequest jobSkillRequest
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(jobSkillService.createSkill(jobSkillRequest));
@@ -37,7 +37,7 @@ public class JobSkillController {
     @GetMapping("/{id}")
     public ResponseEntity<JobSkillResponse> getSkillById(
             @PathVariable Long id
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(jobSkillService.getSkillById(id));
     }
@@ -46,7 +46,7 @@ public class JobSkillController {
     public ResponseEntity<JobSkillResponse> updateSkill(
             @PathVariable Long id,
             @RequestBody @Valid JobSkillRequest req
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(jobSkillService.updateSkill(id, req));
     }
@@ -54,7 +54,7 @@ public class JobSkillController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteSkill(
             @PathVariable Long id
-    ) throws Exception {
+    )   {
 
         jobSkillService.deleteSkill(id);
 

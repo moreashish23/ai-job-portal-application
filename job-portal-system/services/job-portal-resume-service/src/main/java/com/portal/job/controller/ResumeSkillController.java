@@ -23,7 +23,7 @@ public class ResumeSkillController {
     public ResponseEntity<ResumeSkillResponse> addSkill(
             @PathVariable Long resumeId,
             @RequestHeader("X-User-Id") Long candidateId,
-            @RequestBody @Valid AddResumeSkillRequest req) throws Exception {
+            @RequestBody @Valid AddResumeSkillRequest req) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(resumeSkillService.addSkill(resumeId, candidateId, req));
@@ -43,7 +43,7 @@ public class ResumeSkillController {
             @PathVariable Long resumeId,
             @PathVariable Long skillId,
             @RequestHeader("X-User-Id") Long candidateId,
-            @RequestBody @Valid AddResumeSkillRequest req) throws Exception {
+            @RequestBody @Valid AddResumeSkillRequest req) {
 
         return ResponseEntity.ok(
                 resumeSkillService.updateSkill(
@@ -59,7 +59,7 @@ public class ResumeSkillController {
     public ResponseEntity<ApiResponse> deleteSkill(
             @PathVariable Long resumeId,
             @PathVariable Long skillId,
-            @RequestHeader("X-User-Id") Long candidateId) throws Exception {
+            @RequestHeader("X-User-Id") Long candidateId) {
 
         resumeSkillService.deleteSkill(
                 skillId,

@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.ProjectResponse;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.ResumeMapper;
 import com.portal.job.modal.Project;
 import com.portal.job.modal.Resume;
@@ -21,7 +23,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
 
     @Override
-    public ProjectResponse addProject(Long resumeId, Long candidateId, AddProjectRequest req) throws Exception {
+    public ProjectResponse addProject(Long resumeId, Long candidateId, AddProjectRequest req) {
         Resume resume = resumeService.getResumeEntity(resumeId);
 
         assertOwner(resume, candidateId);
@@ -61,9 +63,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponse updateProject(Long projectId, Long resumeId, Long candidateId, AddProjectRequest req) throws Exception {
+    public ProjectResponse updateProject(Long projectId, Long resumeId,
+                                         Long candidateId, AddProjectRequest req) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new Exception("project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("project not found"));
 
         assertOwner(project.getResume(), candidateId);
 
@@ -90,18 +93,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void deleteProject(Long projectId, Long resumeId, Long candidateId) throws Exception {
+    public void deleteProject(Long projectId, Long resumeId, Long candidateId)   {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new Exception("project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("project not found"));
 
         assertOwner(project.getResume(), candidateId);
 
         projectRepository.delete(project);
     }
 
-    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+    private void assertOwner(Resume resume, Long candidateId) {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception(" Resume not found with id: " + candidateId);
+            throw new ForbiddenException("You do not have access to this resume.");
         }
     }
 }

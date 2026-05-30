@@ -11,18 +11,18 @@ public interface ResumeService {
 
     ResumeResponse createResume(Long candidateId, CreateResumeRequest req);
 
-    ResumeResponse getResumeById(Long resumeId, Long candidateId) throws Exception;
+    ResumeResponse getResumeById(Long resumeId, Long candidateId) ;
 
     List<ResumeResponse> getMyResumes(Long candidateId);
 
-    ResumeResponse updatePersonalInfo(Long resumeId, Long candidateId, PersonalInfoResponse req) throws Exception;
+    ResumeResponse updatePersonalInfo(Long resumeId, Long candidateId, PersonalInfoResponse req) ;
 
-    ResumeResponse updateSummary(Long resumeId, Long candidateId, String summary) throws Exception;
+    ResumeResponse updateSummary(Long resumeId, Long candidateId, String summary) ;
 
-    ResumeResponse setDefaultResume(Long resumeId, Long candidateId) throws Exception;
+    ResumeResponse setDefaultResume(Long resumeId, Long candidateId);
 
-    void deleteResume(Long resumeId, Long candidateId) throws Exception;
+    void deleteResume(Long resumeId, Long candidateId);
 
-    Resume getResumeEntity(Long resumeId) throws Exception;
+    Resume getResumeEntity(Long resumeId);
 
 }

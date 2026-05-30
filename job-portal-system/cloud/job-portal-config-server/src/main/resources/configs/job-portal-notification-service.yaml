@@ -1,0 +1,31 @@
+server:
+  port: 5007
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+kafka:
+  topics:
+    application-submitted: application.submitted
+    application-status-changed: application.status.changed
+
+app:
+  mail:
+    from-name: "AI Job Portal"
+    from-address: ${MAIL_USERNAME}

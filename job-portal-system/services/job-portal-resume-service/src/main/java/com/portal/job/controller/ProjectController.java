@@ -26,7 +26,7 @@ public class ProjectController {
             @RequestHeader("X-User-Id") Long candidateId,
 
             @RequestBody @Valid AddProjectRequest request
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 projectService.addProject(
@@ -58,7 +58,7 @@ public class ProjectController {
             @RequestHeader("X-User-Id") Long candidateId,
 
             @RequestBody @Valid AddProjectRequest req
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 projectService.updateProject(
@@ -78,7 +78,7 @@ public class ProjectController {
             @PathVariable Long projectId,
 
             @RequestHeader("X-User-Id") Long candidateId
-    ) throws Exception {
+    ) {
 
         projectService.deleteProject(
                 projectId,

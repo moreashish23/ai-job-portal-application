@@ -9,6 +9,7 @@ import com.portal.job.service.JobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class JobController {
             @RequestBody
             @Valid
             JobRequest jobRequest
-    ) throws Exception {
+    )  {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -44,7 +45,7 @@ public class JobController {
 
             @PathVariable
             Long id
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 jobService.getJobById(id)
@@ -57,23 +58,20 @@ public class JobController {
     }
 
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<JobResponse>> getJobsByCompany(
-
-            @PathVariable
-            Long companyId
-    ) {
-
+    public ResponseEntity<Page<JobResponse>> getJobsByCompany(
+            @PathVariable Long companyId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(
-                jobService.getJobsByCompany(companyId)
-        );
+                jobService.getJobsByCompany(companyId, PageRequest.of(page, size)));
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<List<JobResponse>> getAllJobsAdmin() {
-
+    public ResponseEntity<Page<JobResponse>> getAllJobsAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(
-                jobService.getAllJobsAdmin()
-        );
+                jobService.getAllJobsAdmin(PageRequest.of(page, size)));
     }
 
     @PutMapping("/{id}")
@@ -89,7 +87,7 @@ public class JobController {
             @Valid
             JobRequest req
 
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 jobService.updateJob(id, employerId, req)
@@ -105,7 +103,7 @@ public class JobController {
             @RequestHeader("X-User-Id")
             Long employerId
 
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
                 jobService.publishJob(id, employerId)
@@ -121,7 +119,7 @@ public class JobController {
             @RequestHeader("X-User-Id")
             Long employerId
 
-    ) throws Exception {
+    )   {
 
         return ResponseEntity.ok(
                 jobService.closeJob(id, employerId)
@@ -137,7 +135,7 @@ public class JobController {
             @RequestHeader("X-User-Id")
             Long employerId
 
-    ) throws Exception {
+    )   {
 
         jobService.deleteJob(id, employerId);
 

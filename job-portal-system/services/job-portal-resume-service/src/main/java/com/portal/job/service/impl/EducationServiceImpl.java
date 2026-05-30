@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.EducationResponse;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.ResumeMapper;
 import com.portal.job.modal.Education;
 import com.portal.job.modal.Resume;
@@ -23,7 +25,7 @@ public class EducationServiceImpl implements EducationService {
     private final ResumeService resumeService;
 
     @Override
-    public EducationResponse addEducation(Long resumeId, Long candidateId, AddEducationRequest req) throws Exception {
+    public EducationResponse addEducation(Long resumeId, Long candidateId, AddEducationRequest req)   {
         Resume resume = resumeService.getResumeEntity(resumeId);
         assertOwner(resume, candidateId);
 
@@ -60,10 +62,10 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationResponse updateEducation(Long educationId, Long resumeId, Long candidateId, AddEducationRequest req) throws Exception {
+    public EducationResponse updateEducation(Long educationId, Long resumeId, Long candidateId, AddEducationRequest req) {
 
         Education edu = educationRepository.findById(educationId)
-                .orElseThrow(() -> new Exception("education does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("education does not exist"));
 
         assertOwner(edu.getResume(), candidateId);
 
@@ -87,10 +89,10 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public void deleteEducation(Long educationId, Long resumeId, Long candidateId) throws Exception {
+    public void deleteEducation(Long educationId, Long resumeId, Long candidateId)  {
 
         Education edu = educationRepository.findById(educationId)
-                .orElseThrow(() -> new Exception("education does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Resume", resumeId));
 
         assertOwner(edu.getResume(), candidateId);
 
@@ -98,9 +100,9 @@ public class EducationServiceImpl implements EducationService {
 
     }
 
-    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+    private void assertOwner(Resume resume, Long candidateId)  {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception(" Resume not found with id: " + candidateId);
+            throw new ForbiddenException("You do not have access to this resume.");
         }
     }
 }

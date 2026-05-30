@@ -12,7 +12,7 @@ public interface LanguageService {
             Long resumeId,
             Long candidateId,
             AddLanguageRequest req
-    ) throws Exception;
+    ) ;
 
     List<LanguageResponse> getLanguages(Long resumeId);
 
@@ -21,11 +21,11 @@ public interface LanguageService {
             Long resumeId,
             Long candidateId,
             AddLanguageRequest req
-    ) throws Exception;
+    ) ;
 
     void deleteLanguage(
             Long languageId,
             Long resumeId,
             Long candidateId
-    ) throws Exception;
+    ) ;
 }

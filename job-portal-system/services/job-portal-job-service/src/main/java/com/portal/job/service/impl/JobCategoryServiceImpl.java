@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.JobCategoryResponse;
+import com.portal.job.exception.BadRequestException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.JobCategoryMapper;
 import com.portal.job.modal.JobCategory;
 import com.portal.job.payload.JobCategoryRequest;
@@ -20,10 +22,10 @@ public class JobCategoryServiceImpl implements JobCategoryService {
     private final JobCategoryRepository jobCategoryRepository;
 
     @Override
-    public JobCategoryResponse createCategory(JobCategoryRequest req) throws Exception {
+    public JobCategoryResponse createCategory(JobCategoryRequest req)  {
 
         if(jobCategoryRepository.existsByName(req.getName())) {
-            throw new Exception("Category with name already exists");
+            throw new BadRequestException("Category with name already exists");
         }
 
        JobCategory parent = null;
@@ -56,25 +58,25 @@ public class JobCategoryServiceImpl implements JobCategoryService {
     }
 
     @Override
-    public JobCategoryResponse getCategoryById(Long id) throws Exception {
+    public JobCategoryResponse getCategoryById(Long id)   {
         JobCategory jobCategory = getCategoryEntityById(id);
         return JobCategoryMapper.toJobCategoryResponse(jobCategory, true);
     }
 
     @Override
-    public JobCategoryResponse updateCategory(Long id, JobCategoryRequest req) throws Exception {
+    public JobCategoryResponse updateCategory(Long id, JobCategoryRequest req)   {
 
         JobCategory category = getCategoryEntityById(id);
 
         if(!category.getName().equals(req.getName()) &&
         jobCategoryRepository.existsByName(req.getName())) {
-            throw new Exception("Category with name already exists, choose different name");
+            throw new BadRequestException("Category with name already exists, choose different name");
         }
 
         JobCategory parent = null;
         if(req.getParentId()!=null) {
             if(req.getParentId().equals(id)) {
-                throw new Exception("Category cannot be parent of itself");
+                throw new BadRequestException("Category cannot be parent of itself");
             }
             parent = getCategoryEntityById(req.getParentId());
         }
@@ -89,7 +91,7 @@ public class JobCategoryServiceImpl implements JobCategoryService {
     }
 
     @Override
-    public void deleteCategory(Long id) throws Exception {
+    public void deleteCategory(Long id)   {
 
         JobCategory category = getCategoryEntityById(id);
         category.setActive(false);
@@ -98,9 +100,9 @@ public class JobCategoryServiceImpl implements JobCategoryService {
     }
 
     @Override
-    public JobCategory getCategoryEntityById(Long id) throws Exception {
+    public JobCategory getCategoryEntityById(Long id)  {
         return jobCategoryRepository.findById(id).orElseThrow(
-                () -> new Exception("Category not found")
+                () -> new ResourceNotFoundException("Category not found")
         );
     }
 

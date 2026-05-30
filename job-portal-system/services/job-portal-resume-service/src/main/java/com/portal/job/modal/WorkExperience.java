@@ -24,8 +24,8 @@ public class WorkExperience {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resume_id", nullable = false)
     private Resume resume;
 
     @Column(nullable = false)

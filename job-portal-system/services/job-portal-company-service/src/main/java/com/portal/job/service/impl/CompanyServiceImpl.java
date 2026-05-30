@@ -6,49 +6,50 @@ import com.portal.job.domain.IndustryType;
 import com.portal.job.dto.request.CompanyRequest;
 import com.portal.job.dto.response.CompanyResponse;
 import com.portal.job.dto.response.SocialLinkResponse;
+import com.portal.job.exception.BadRequestException;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.CompanyMapper;
 import com.portal.job.modal.Company;
 import com.portal.job.modal.SocialLink;
 import com.portal.job.repository.CompanyRepository;
 import com.portal.job.service.CompanyService;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
 
+
+
     @Override
-    public CompanyResponse createCompany(Long ownerId, CompanyRequest req) throws Exception {
+    public CompanyResponse createCompany(Long ownerId, CompanyRequest req) {
 
         if (companyRepository.existsByOwnerId(ownerId)) {
-            throw new Exception(
-                    "You already have a company registered. " +
-                            "Only one company per account is allowed."
-            );
+            throw new BadRequestException(
+                    "You already have a company registered. Only one company per account is allowed.");
         }
 
         if (companyRepository.existsByName(req.getName())) {
-            throw new Exception(
-                    "Company already exists. Please choose a different name."
-            );
+            throw new BadRequestException(
+                    "A company with this name already exists. Please choose a different name.");
         }
 
         if (req.getRegistrationNumber() != null &&
-                companyRepository.existsByRegistrationNumber(
-                        req.getRegistrationNumber()
-                )) {
-
-            throw new Exception(
-                    "Company already exists. Please choose a different registration number."
-            );
+                companyRepository.existsByRegistrationNumber(req.getRegistrationNumber())) {
+            throw new BadRequestException(
+                    "A company with this registration number already exists.");
         }
 
         String slug = generateUniqueSlug(req.getName());
@@ -72,84 +73,65 @@ public class CompanyServiceImpl implements CompanyService {
                 .socialLinks(mapSocialLinks(req.getSocialLinks()))
                 .build();
 
-        Company saved =  companyRepository.save(company);
-
-        return CompanyMapper.toResponse(saved);
+        try {
+            Company saved = companyRepository.save(company);
+            return CompanyMapper.toResponse(saved);
+        } catch (DataIntegrityViolationException e) {
+            // Catches race condition: two concurrent requests with same name/slug
+            throw new BadRequestException(
+                    "A company with this name or registration number already exists.");
+        }
     }
 
-    private List<SocialLink> mapSocialLinks(List<SocialLinkResponse> socialLinks) {
-        if(socialLinks == null || socialLinks.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return socialLinks.stream()
-                .map(e -> SocialLink.builder()
-                        .platform(e.getPlatform())
-                        .url(e.getUrl())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private String generateUniqueSlug(@NotBlank(message = "company name is required") String name) {
-        String base = name.toLowerCase()
-                .replaceAll("[^a-z0-9\\s-]", "")
-                .trim().replaceAll("[\\s-]", "-");
-
-        if(!companyRepository.existsBySlug(base)) {
-            return base;
-        }
-
-        int counter=1;
-        while(companyRepository.existsBySlug(base+"-"+counter)) {
-            counter++;
-        }
-        return base+"-"+counter;
-    }
+    // ─── Read ────────────────────────────────────────────────────────────────
 
     @Override
-    public CompanyResponse getCompanyById(Long id) throws Exception {
-        Company company = companyRepository.findById(id).orElseThrow(
-                () -> new Exception("Company not found with " + id)
-        );
+    @Transactional(readOnly = true)
+    public CompanyResponse getCompanyById(Long id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company", id));
         return CompanyMapper.toResponse(company);
     }
 
     @Override
-    public CompanyResponse getMyCompany(Long ownerId) throws Exception {
-        Company  company = companyRepository.findByOwnerId(ownerId).orElseThrow(
-                () -> new Exception("Company exist for owner " + ownerId)
-        );
+    @Transactional(readOnly = true)
+    public CompanyResponse getMyCompany(Long ownerId) {
+        Company company = companyRepository.findByOwnerId(ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No company found for this account."));
         return CompanyMapper.toResponse(company);
     }
 
     @Override
-    public List<CompanyResponse> getAllCompanies(CompanyType companyType, IndustryType industryType, CompanyStatus companyStatus) {
-        return companyRepository.findByFilters(
-                companyType,
-                industryType,
-                companyStatus
-        ).stream()
-                .map(CompanyMapper::toResponse)
-                .collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public Page<CompanyResponse> getAllCompanies(
+            CompanyType companyType,
+            IndustryType industryType,
+            CompanyStatus companyStatus,
+            Pageable pageable) {
+
+        return companyRepository
+                .findByFilters(companyType, industryType, companyStatus, pageable)
+                .map(CompanyMapper::toResponse);
     }
 
+
     @Override
-    public CompanyResponse updateCompany(Long companyId, Long ownerId, CompanyRequest req) throws Exception {
+    public CompanyResponse updateCompany(Long companyId, Long ownerId, CompanyRequest req) {
         Company company = getCompanyEntityById(companyId);
+        assertOwner(company, ownerId);
 
-        if(!company.getName().equals(req.getName())
+        if (!company.getName().equals(req.getName())
                 && companyRepository.existsByName(req.getName())) {
-            throw new Exception(
-                    "Company already exists. Please choose a different name."
-            );
+            throw new BadRequestException(
+                    "A company with this name already exists. Please choose a different name.");
         }
 
-        if(req.getRegistrationNumber() != null
+        if (req.getRegistrationNumber() != null
                 && !req.getRegistrationNumber().equals(company.getRegistrationNumber())
                 && companyRepository.existsByRegistrationNumber(req.getRegistrationNumber())) {
-
-            throw new Exception(
-                    "Company already exists. Please choose a different registration number."
-            );
+            throw new BadRequestException(
+                    "A company with this registration number already exists.");
         }
 
         company.setName(req.getName());
@@ -170,39 +152,72 @@ public class CompanyServiceImpl implements CompanyService {
         return CompanyMapper.toResponse(companyRepository.save(company));
     }
 
+
     @Override
-    public CompanyResponse verifyCompany(Long companyId) throws Exception {
+    public CompanyResponse verifyCompany(Long companyId) {
         Company company = getCompanyEntityById(companyId);
         company.setStatus(CompanyStatus.ACTIVE);
         company.setVerified(true);
-        return  CompanyMapper.toResponse(companyRepository.save(company));
+        return CompanyMapper.toResponse(companyRepository.save(company));
     }
 
     @Override
-    public void deleteCompany(Long companyId, Long ownerId) throws Exception {
+    public CompanyResponse deactivateCompany(Long companyId) {
+        Company company = getCompanyEntityById(companyId);
+        company.setStatus(CompanyStatus.SUSPENDED);
+        company.setVerified(false);
+        return CompanyMapper.toResponse(companyRepository.save(company));
+    }
+
+    @Override
+    public void deleteCompany(Long companyId, Long ownerId) {
         Company company = getCompanyEntityById(companyId);
         assertOwner(company, ownerId);
         companyRepository.delete(company);
     }
 
-    private void assertOwner(Company company, Long ownerId) throws Exception {
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Company getCompanyEntityById(Long id) {
+        return companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company", id));
+    }
+
+
+    private void assertOwner(Company company, Long ownerId) {
         if (!company.getOwnerId().equals(ownerId)) {
-            throw new Exception("Unauthorized: You do not own this company.");
+            throw new ForbiddenException("You do not have permission to modify this company.");
         }
     }
 
-    @Override
-    public CompanyResponse deactivateCompany(Long companyId) throws Exception {
-        Company company = getCompanyEntityById(companyId);
-        company.setStatus(CompanyStatus.SUSPENDED);
-        company.setVerified(false);
-        return  CompanyMapper.toResponse(companyRepository.save(company));
+    private List<SocialLink> mapSocialLinks(List<SocialLinkResponse> socialLinks) {
+        if (socialLinks == null || socialLinks.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return socialLinks.stream()
+                .map(e -> SocialLink.builder()
+                        .platform(e.getPlatform())
+                        .url(e.getUrl())
+                        .build())
+                .toList();
     }
 
-    @Override
-    public Company getCompanyEntityById(Long id) throws Exception {
-        return companyRepository.findById(id).orElseThrow(
-                () -> new Exception("Company not found with " + id)
-        );
+    private String generateUniqueSlug(String name) {
+        String base = name.toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .trim()
+                .replaceAll("[\\s-]+", "-");
+
+        if (!companyRepository.existsBySlug(base)) {
+            return base;
+        }
+
+        int counter = 1;
+        while (companyRepository.existsBySlug(base + "-" + counter)) {
+            counter++;
+        }
+        return base + "-" + counter;
     }
 }

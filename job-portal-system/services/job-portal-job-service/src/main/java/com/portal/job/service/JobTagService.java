@@ -9,18 +9,18 @@ import java.util.Set;
 
 public interface JobTagService {
 
-    JobTagResponse createTag(JobTagRequest req) throws Exception;
+    JobTagResponse createTag(JobTagRequest req) ;
 
     List<JobTagResponse> getAllTags();
 
-    JobTagResponse getById(Long id) throws Exception;
+    JobTagResponse getById(Long id) ;
 
-    JobTagResponse updateTag(Long id, JobTagRequest req) throws Exception;
+    JobTagResponse updateTag(Long id, JobTagRequest req) ;
 
-    void deleteTag(Long id) throws Exception;
+    void deleteTag(Long id);
 
-    JobTag getTagEntityById(Long id) throws Exception;
+    JobTag getTagEntityById(Long id) ;
 
-    Set<JobTag> getTagsByIds(Set<Long> ids) throws Exception;
+    Set<JobTag> getTagsByIds(Set<Long> ids) ;
 
 }

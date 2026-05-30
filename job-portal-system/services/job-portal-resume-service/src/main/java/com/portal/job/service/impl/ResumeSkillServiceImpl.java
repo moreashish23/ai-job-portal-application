@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.ResumeSkillResponse;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.ResumeMapper;
 import com.portal.job.modal.Resume;
 import com.portal.job.modal.ResumeSkill;
@@ -20,7 +22,8 @@ public class ResumeSkillServiceImpl implements ResumeSkillService {
     private final ResumeService  resumeService;
 
     @Override
-    public ResumeSkillResponse addSkill(Long resumeId, Long candidateId, AddResumeSkillRequest req) throws Exception {
+    public ResumeSkillResponse addSkill(Long resumeId, Long candidateId,
+                                        AddResumeSkillRequest req) {
         Resume resume = resumeService.getResumeEntity(resumeId);
 
         assertOwner(resume, candidateId);
@@ -47,9 +50,10 @@ public class ResumeSkillServiceImpl implements ResumeSkillService {
     }
 
     @Override
-    public ResumeSkillResponse updateSkill(Long skillId, Long resumeId, Long candidateId, AddResumeSkillRequest req) throws Exception {
+    public ResumeSkillResponse updateSkill(Long skillId, Long resumeId, Long candidateId,
+                                           AddResumeSkillRequest req) {
         ResumeSkill skill = resumeSkillRepository.findById(skillId)
-                .orElseThrow(() -> new Exception("Skill not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
 
         assertOwner(skill.getResume(), candidateId);
 
@@ -66,17 +70,17 @@ public class ResumeSkillServiceImpl implements ResumeSkillService {
     }
 
     @Override
-    public void deleteSkill(Long skillId, Long resumeId, Long candidateId) throws Exception {
+    public void deleteSkill(Long skillId, Long resumeId, Long candidateId)  {
         ResumeSkill skill = resumeSkillRepository.findById(skillId)
-                .orElseThrow(() -> new Exception("Skill not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
 
         assertOwner(skill.getResume(), candidateId);
         resumeSkillRepository.delete(skill);
     }
 
-    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+    private void assertOwner(Resume resume, Long candidateId) {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception(" Resume not found with id: " + candidateId);
+            throw new ForbiddenException("You do not have access to this resume.");
         }
     }
 }

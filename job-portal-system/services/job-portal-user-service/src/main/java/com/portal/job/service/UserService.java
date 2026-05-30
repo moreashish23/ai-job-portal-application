@@ -8,20 +8,20 @@ import java.util.List;
 
 public interface UserService {
 
-    User getUserByEmail(String email) throws Exception;
+    User getUserByEmail(String email) ;
 
-    User getUserById(Long id) throws Exception;
+    User getUserById(Long id) ;
 
     List<User> getAllUsers();
 
-    UserResponse updateProfile(String email, UpdateUserRequest req) throws Exception;
+    UserResponse updateProfile(String email, UpdateUserRequest req) ;
 
 
     //admin actions
-    UserResponse suspendUser(Long id) throws Exception;
-    UserResponse activateUser(Long id) throws Exception;
+    UserResponse suspendUser(Long id) ;
+    UserResponse activateUser(Long id) ;
 
-    UserResponse deleteUser(Long id) throws Exception;
+    UserResponse deleteUser(Long id) ;
 
 
 }

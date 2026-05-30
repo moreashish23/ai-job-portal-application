@@ -19,6 +19,9 @@
 
     <modules>
         <!-- Discovery Service -->
+        <module>job-portal-service-registry</module>
+        <module>job-portal-config-server</module>
+        <module>job-portal-api-gateway</module>
     </modules>
 
 </project>

@@ -1,0 +1,253 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: job-portal-api-gateway
+
+  cloud:
+    gateway:
+
+      # ── Global CORS ──────────────────────────────────────────────────────────
+      # Pre-configured for the React frontend (Vite on 5173, CRA on 3000).
+      # Update allowed-origins when the React app is deployed.
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - "http://localhost:3000"
+              - "http://localhost:5173"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - "*"
+            exposed-headers:
+              - "Authorization"
+            allow-credentials: true
+            max-age: 3600
+
+      # ── Default filters — applied to EVERY route ────────────────────────────
+      # Strip injected identity headers from the CLIENT request before
+      # the gateway re-sets them from the validated JWT.
+      # This blocks header injection attacks (client sends their own X-User-Id).
+      default-filters:
+        - RemoveRequestHeader=X-User-Id
+        - RemoveRequestHeader=X-User-Email
+        - RemoveRequestHeader=X-User-Roles
+
+      # ── Routes ───────────────────────────────────────────────────────────────
+      # lb:// prefix = load-balanced via Eureka service discovery.
+      # The name after lb:// MUST match spring.application.name of the service.
+      routes:
+
+        # ── USER SERVICE — Auth (public, no JWT) ─────────────────────────────
+        - id: user-service-auth
+          uri: lb://job-portal-user-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── USER SERVICE — User management API ───────────────────────────────
+        - id: user-service-api
+          uri: lb://job-portal-user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── COMPANY SERVICE ───────────────────────────────────────────────────
+        - id: company-service
+          uri: lb://job-portal-company-service
+          predicates:
+            - Path=/api/companies/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: companyServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── JOB SERVICE — Jobs ────────────────────────────────────────────────
+        - id: job-service-jobs
+          uri: lb://job-portal-job-service
+          predicates:
+            - Path=/api/jobs/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: jobServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── JOB SERVICE — Categories ──────────────────────────────────────────
+        - id: job-service-categories
+          uri: lb://job-portal-job-service
+          predicates:
+            - Path=/api/job-categories/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: jobServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── JOB SERVICE — Skills ──────────────────────────────────────────────
+        - id: job-service-skills
+          uri: lb://job-portal-job-service
+          predicates:
+            - Path=/api/job-skills/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: jobServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── JOB SERVICE — Tags ────────────────────────────────────────────────
+        - id: job-service-tags
+          uri: lb://job-portal-job-service
+          predicates:
+            - Path=/api/job-tags/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: jobServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── RESUME SERVICE ────────────────────────────────────────────────────
+        # Single route covers all resume sub-resources:
+        #   /api/resumes/{id}/work-experiences
+        #   /api/resumes/{id}/educations
+        #   /api/resumes/{id}/skills
+        #   /api/resumes/{id}/languages
+        #   /api/resumes/{id}/projects
+        - id: resume-service
+          uri: lb://job-portal-resume-service
+          predicates:
+            - Path=/api/resumes/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: resumeServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── APPLICATION SERVICE ───────────────────────────────────────────────
+        - id: application-service
+          uri: lb://job-portal-application-service
+          predicates:
+            - Path=/api/applications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: applicationServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── PREFERENCE SERVICE — Saved Jobs ───────────────────────────────────
+        - id: preference-service-saved-jobs
+          uri: lb://job-portal-preference-service
+          predicates:
+            - Path=/api/saved-jobs/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: preferenceServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── PREFERENCE SERVICE — Job Alerts ───────────────────────────────────
+        - id: preference-service-alerts
+          uri: lb://job-portal-preference-service
+          predicates:
+            - Path=/api/job-alerts/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: preferenceServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+        # ── AI SERVICE ────────────────────────────────────────────────────────
+        - id: ai-service
+          uri: lb://job-portal-ai-service
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: aiServiceCB
+                fallbackUri: forward:/fallback/unavailable
+
+# ── Eureka ────────────────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# ── JWT Secret ────────────────────────────────────────────────────────────────
+# Must match JwtConstant.SECRET_KEY in user-service exactly.
+# In production: externalize to environment variable ${JWT_SECRET}.
+jwt:
+  secret: ${JWT_SECRET}
+
+# ── Resilience4j — Circuit Breakers ──────────────────────────────────────────
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        # Watch last 10 calls; trip open if >50% fail
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        # Stay open for 15s before trying again
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      userServiceCB:
+        base-config: default
+      companyServiceCB:
+        base-config: default
+      jobServiceCB:
+        base-config: default
+      resumeServiceCB:
+        base-config: default
+      applicationServiceCB:
+        base-config: default
+      preferenceServiceCB:
+        base-config: default
+      aiServiceCB:
+        base-config: default
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 10s
+    instances:
+      # AI calls to Groq take longer — allow up to 30s
+      aiServiceCB:
+        timeout-duration: 30s
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.portal.job: DEBUG
+    com.netflix.discovery: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

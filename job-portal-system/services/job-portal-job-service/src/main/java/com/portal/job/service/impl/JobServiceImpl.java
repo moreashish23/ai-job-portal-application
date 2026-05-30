@@ -4,6 +4,9 @@ import com.portal.job.domain.JobStatus;
 import com.portal.job.dto.request.JobRequest;
 import com.portal.job.dto.response.CompanyResponse;
 import com.portal.job.dto.response.JobResponse;
+import com.portal.job.exception.BadRequestException;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.JobMapper;
 import com.portal.job.modal.Job;
 import com.portal.job.modal.JobCategory;
@@ -44,7 +47,7 @@ public class JobServiceImpl implements JobService {
     private final JobTagService tagService;
 
     @Override
-    public JobResponse createJob(Long employerId, JobRequest req) throws Exception {
+    public JobResponse createJob(Long employerId, JobRequest req)  {
 
         JobCategory category = categoryService.getCategoryEntityById(req.getCategoryId());
 
@@ -90,10 +93,10 @@ public class JobServiceImpl implements JobService {
 
 
     @Override
-    public JobResponse getJobById(Long id) throws Exception {
+    public JobResponse getJobById(Long id) {
 
         Job job = jobRepository.findById(id).orElseThrow(
-                () -> new Exception("Job not Found with " + id)
+                () -> new ResourceNotFoundException("Job", id)
         );
 
         return convertToResponse(job);
@@ -110,20 +113,15 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobResponse> getJobsByCompany(Long companyId) {
-
-        List<Job> jobs = jobRepository.findByCompanyId(companyId);
-        return jobs.stream().map(
-                this::convertToResponse
-        ).collect(Collectors.toList());
-
+    public Page<JobResponse> getJobsByCompany(Long companyId, Pageable pageable) {
+        return jobRepository.findByCompanyId(companyId, pageable).map(this::convertToResponse);
     }
 
     @Override
-    public JobResponse updateJob(Long jobId, Long employerId, JobRequest req) throws Exception {
+    public JobResponse updateJob(Long jobId, Long employerId, JobRequest req)   {
 
         Job job = jobRepository.findById(jobId).orElseThrow(
-                () -> new Exception("Job not found with id: " + jobId)
+                () -> new  ResourceNotFoundException("Job", jobId)
         );
 
         assertEmployer(job, employerId);
@@ -159,15 +157,15 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobResponse publishJob(Long jobId, Long employerId) throws Exception {
+    public JobResponse publishJob(Long jobId, Long employerId)  {
 
         Job job = jobRepository.findById(jobId).orElseThrow(
-                () -> new Exception("Job not found with id: " + jobId)
+                () ->  new ResourceNotFoundException("Job", jobId)
         );
 
         assertEmployer(job, employerId);
         if(job.getStatus() == JobStatus.CLOSED || job.getStatus()==JobStatus.EXPIRED){
-            throw new Exception("Job is expired");
+            throw new BadRequestException("Cannot publish a job that is CLOSED or EXPIRED.");
         }
         job.setStatus(JobStatus.OPEN);
         job.setPublishedAt(java.time.LocalDateTime.now());
@@ -177,10 +175,10 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobResponse closeJob(Long jobId, Long employerId) throws Exception {
+    public JobResponse closeJob(Long jobId, Long employerId) {
 
         Job job = jobRepository.findById(jobId).orElseThrow(
-                () -> new Exception("Job not found with id: " + jobId)
+                () ->  new ResourceNotFoundException("Job", jobId)
         );
 
         assertEmployer(job, employerId);
@@ -192,9 +190,9 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public void deleteJob(Long jobId, Long employerId) throws Exception {
+    public void deleteJob(Long jobId, Long employerId)  {
         Job job = jobRepository.findById(jobId).orElseThrow(
-                () -> new Exception("Job not found with id: " + jobId)
+                () ->   new ResourceNotFoundException("Job", jobId)
         );
 
         assertEmployer(job, employerId);
@@ -202,10 +200,8 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobResponse> getAllJobsAdmin() {
-        return jobRepository.findAll().stream().map(
-                this::convertToResponse
-        ).collect(Collectors.toList());
+    public Page<JobResponse> getAllJobsAdmin(Pageable pageable) {
+        return jobRepository.findAll(pageable).map(this::convertToResponse);
     }
 
 
@@ -235,9 +231,9 @@ public class JobServiceImpl implements JobService {
                 .build();
     }
 
-    private void assertEmployer(Job job, Long employerId) throws Exception {
+    private void assertEmployer(Job job, Long employerId)  {
         if (!job.getEmployerId().equals(employerId)) {
-            throw new Exception("Unauthorized: You are not the employer who posted this job");
+             throw new ForbiddenException("You are not authorized to modify this job.");
         }
     }
 }

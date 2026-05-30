@@ -48,7 +48,8 @@ public class Job {
     @Column(nullable = false)
     private Long employerId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
      private JobCategory category;
 
     @ManyToMany(fetch = FetchType.LAZY)

@@ -12,8 +12,7 @@ public interface ResumeSkillService {
             Long resumeId,
             Long candidateId,
             AddResumeSkillRequest req
-    ) throws Exception;
-
+    ) ;
     List<ResumeSkillResponse> getSkills(
             Long resumeId
     );
@@ -23,11 +22,11 @@ public interface ResumeSkillService {
             Long resumeId,
             Long candidateId,
             AddResumeSkillRequest req
-    ) throws Exception;
+    ) ;
 
     void deleteSkill(
             Long skillId,
             Long resumeId,
             Long candidateId
-    ) throws Exception;
+    ) ;
 }

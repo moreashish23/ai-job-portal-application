@@ -23,6 +23,9 @@
         <module>job-portal-job-service</module>
         <module>job-portal-resume-service</module>
         <module>job-portal-application-service</module>
+        <module>job-portal-preference-service</module>
+        <module>job-portal-notification-service</module>
+        <module>job-portal-ai-service</module>
     </modules>
 
 </project>

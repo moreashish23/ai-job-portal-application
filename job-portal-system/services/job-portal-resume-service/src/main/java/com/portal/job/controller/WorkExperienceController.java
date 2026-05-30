@@ -29,7 +29,7 @@ public class WorkExperienceController {
             @RequestBody @Valid
             AddWorkExperience req
 
-    ) throws Exception {
+    )  {
 
         return ResponseEntity.ok(
 
@@ -46,7 +46,7 @@ public class WorkExperienceController {
 
             @PathVariable Long resumeId
 
-    ) throws Exception {
+    ) {
 
         return ResponseEntity.ok(
 
@@ -69,7 +69,7 @@ public class WorkExperienceController {
             @RequestBody @Valid
             AddWorkExperience req
 
-    ) throws Exception {
+    ) {
 
         return ResponseEntity.ok(
 
@@ -92,7 +92,7 @@ public class WorkExperienceController {
             @RequestHeader("X-User-Id")
             Long candidateId
 
-    ) throws Exception {
+    ) {
 
         workExperienceService.deleteWorkExperience(
                 resumeId,

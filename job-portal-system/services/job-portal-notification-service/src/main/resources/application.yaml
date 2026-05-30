@@ -1,0 +1,77 @@
+server:
+  port: 5007
+
+spring:
+  application:
+    name: job-portal-notification-service
+
+  # ── Kafka Consumer ──────────────────────────────────────────────────────────
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.portal.job.event"
+        spring.json.use.type.headers: false
+
+  # ── Email / Gmail SMTP ──────────────────────────────────────────────────────
+  # Use a Gmail App Password (not your login password)
+  # Setup: Google Account → Security → 2-Step Verification → App Passwords
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# ── Eureka ──────────────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# ── Feign ────────────────────────────────────────────────────────────────────
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+
+# ── Kafka Topic Names ────────────────────────────────────────────────────────
+kafka:
+  topics:
+    application-submitted: application.submitted
+    application-status-changed: application.status.changed
+
+# ── App Config ───────────────────────────────────────────────────────────────
+app:
+  mail:
+    from-name: "AI Job Portal"
+    from-address: ${MAIL_USERNAME}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

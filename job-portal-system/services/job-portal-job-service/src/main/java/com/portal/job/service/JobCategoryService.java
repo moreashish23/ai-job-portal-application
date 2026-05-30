@@ -9,15 +9,15 @@ import java.util.List;
 
 public interface JobCategoryService {
 
-    JobCategoryResponse createCategory(JobCategoryRequest req) throws Exception;
+    JobCategoryResponse createCategory(JobCategoryRequest req)  ;
 
     List<JobCategoryResponse> getAllCategories();
 
-    JobCategoryResponse getCategoryById(Long id) throws Exception;
+    JobCategoryResponse getCategoryById(Long id)  ;
 
-    JobCategoryResponse updateCategory(Long id, JobCategoryRequest req) throws Exception;
+    JobCategoryResponse updateCategory(Long id, JobCategoryRequest req) ;
 
-    void deleteCategory(Long id) throws Exception;
+    void deleteCategory(Long id)  ;
 
-    JobCategory getCategoryEntityById(Long id) throws Exception;
+    JobCategory getCategoryEntityById(Long id)  ;
 }

@@ -1,0 +1,50 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: job-portal-config-server
+
+  profiles:
+    # 'native' = serve config from classpath/filesystem (no Git needed for local dev)
+    # To switch to Git in production: change active to 'git' and fill in the git block below
+    active: native
+
+  cloud:
+    config:
+      server:
+        native:
+          # Serves files from src/main/resources/configs/
+          # File naming convention: {spring.application.name}.yaml
+          # e.g.  job-portal-user-service.yaml
+          search-locations: classpath:/configs/
+
+        # ── Git backend (production) ─────────────────────────────────────────
+        # Uncomment and configure to use a private Git repo in production.
+        # git:
+        #   uri: https://github.com/your-org/job-portal-configs
+        #   default-label: main
+        #   clone-on-start: true
+        #   timeout: 10
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.cloud.config: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

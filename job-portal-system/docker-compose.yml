@@ -1,0 +1,390 @@
+version: "3.9"
+
+networks:
+  job-portal-net:
+    driver: bridge
+
+volumes:
+  pgdata-user:
+  pgdata-company:
+  pgdata-job:
+  pgdata-resume:
+  pgdata-application:
+  pgdata-preference:
+  zookeeper-data:
+  zookeeper-log:
+  kafka-data:
+
+services:
+
+  # ══════════════════════════════════════════════════════════════════
+  # LAYER 1 — Infrastructure (Kafka, Zookeeper, Databases)
+  # ══════════════════════════════════════════════════════════════════
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: jp-zookeeper
+    networks: [job-portal-net]
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: jp-kafka
+    networks: [job-portal-net]
+    ports:
+      - "9092:9092"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # PLAINTEXT_HOST = accessible from your local machine (port 9092)
+      # PLAINTEXT      = used by containers talking to each other (port 29092)
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # Creates required Kafka topics on startup
+  kafka-init:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: jp-kafka-init
+    networks: [job-portal-net]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
+        --topic application.submitted --partitions 3 --replication-factor 1 && \
+       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
+        --topic application.status.changed --partitions 3 --replication-factor 1 && \
+       echo '✅ Kafka topics ready'"
+    restart: on-failure
+
+  # One PostgreSQL container per service (database-per-service pattern)
+  postgres-user:
+    image: postgres:16-alpine
+    container_name: jp-db-user
+    networks: [job-portal-net]
+    environment:
+      POSTGRES_DB: job_portal_User_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-user:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d job_portal_User_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-company:
+    image: postgres:16-alpine
+    container_name: jp-db-company
+    networks: [job-portal-net]
+    environment:
+      POSTGRES_DB: job_portal_Company_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-company:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d job_portal_Company_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-job:
+    image: postgres:16-alpine
+    container_name: jp-db-job
+    networks: [job-portal-net]
+    environment:
+      POSTGRES_DB: job_portal_Job_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-job:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d job_portal_Job_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-resume:
+    image: postgres:16-alpine
+    container_name: jp-db-resume
+    networks: [job-portal-net]
+    environment:
+      POSTGRES_DB: job_portal_Resume_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-resume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d job_portal_Resume_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-application:
+    image: postgres:16-alpine
+    container_name: jp-db-application
+    networks: [job-portal-net]
+    environment:
+      POSTGRES_DB: job_portal_Application_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-application:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d job_portal_Application_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-preference:
+    image: postgres:16-alpine
+    container_name: jp-db-preference
+    networks: [job-portal-net]
+    environment:
+      POSTGRES_DB: job_portal_Preference_DB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata-preference:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d job_portal_Preference_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ══════════════════════════════════════════════════════════════════
+  # LAYER 2 — Cloud Infrastructure (Eureka → Config → Gateway)
+  # ══════════════════════════════════════════════════════════════════
+
+  service-registry:
+    build:
+      context: .
+      dockerfile: cloud/job-portal-service-registry/Dockerfile
+    image: jp/service-registry:latest
+    container_name: jp-service-registry
+    networks: [job-portal-net]
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8761/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
+
+  config-server:
+    build:
+      context: .
+      dockerfile: cloud/job-portal-config-server/Dockerfile
+    image: jp/config-server:latest
+    container_name: jp-config-server
+    networks: [job-portal-net]
+    ports:
+      - "8888:8888"
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      DB_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8888/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: cloud/job-portal-api-gateway/Dockerfile
+    image: jp/api-gateway:latest
+    container_name: jp-api-gateway
+    networks: [job-portal-net]
+    ports:
+      - "8080:8080"
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
+
+  # ══════════════════════════════════════════════════════════════════
+  # LAYER 3 — Business Services
+  # ══════════════════════════════════════════════════════════════════
+
+  user-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-user-service/Dockerfile
+    image: jp/user-service:latest
+    container_name: jp-user-service
+    networks: [job-portal-net]
+    depends_on:
+      postgres-user:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-user:5432/job_portal_User_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+
+  company-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-company-service/Dockerfile
+    image: jp/company-service:latest
+    container_name: jp-company-service
+    networks: [job-portal-net]
+    depends_on:
+      postgres-company:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-company:5432/job_portal_Company_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+
+  job-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-job-service/Dockerfile
+    image: jp/job-service:latest
+    container_name: jp-job-service
+    networks: [job-portal-net]
+    depends_on:
+      postgres-job:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-job:5432/job_portal_Job_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+
+  resume-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-resume-service/Dockerfile
+    image: jp/resume-service:latest
+    container_name: jp-resume-service
+    networks: [job-portal-net]
+    depends_on:
+      postgres-resume:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-resume:5432/job_portal_Resume_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+
+  application-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-application-service/Dockerfile
+    image: jp/application-service:latest
+    container_name: jp-application-service
+    networks: [job-portal-net]
+    depends_on:
+      postgres-application:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-application:5432/job_portal_Application_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+  preference-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-preference-service/Dockerfile
+    image: jp/preference-service:latest
+    container_name: jp-preference-service
+    networks: [job-portal-net]
+    depends_on:
+      postgres-preference:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-preference:5432/job_portal_Preference_DB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-notification-service/Dockerfile
+    image: jp/notification-service:latest
+    container_name: jp-notification-service
+    networks: [job-portal-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: services/job-portal-ai-service/Dockerfile
+    image: jp/ai-service:latest
+    container_name: jp-ai-service
+    networks: [job-portal-net]
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      GROQ_API_KEY: ${GROQ_API_KEY}

@@ -12,7 +12,7 @@ public interface WorkExperienceService {
             Long resumeId,
             Long candidateId,
             AddWorkExperience req
-    ) throws Exception;
+    ) ;
 
     List<WorkExperienceResponse> getWorkExperiences(Long resumeId);
 
@@ -21,13 +21,13 @@ public interface WorkExperienceService {
             Long  candidateId,
             Long workExperienceId,
             AddWorkExperience req
-    ) throws Exception;
+    ) ;
 
     void deleteWorkExperience(
             Long resumeId,
             Long workExperienceId,
             Long candidateId
-    ) throws Exception;
+    ) ;
 
-    WorkExperience getWorkExperienceEntity(Long workExperienceId) throws Exception;
+    WorkExperience getWorkExperienceEntity(Long workExperienceId);
 }

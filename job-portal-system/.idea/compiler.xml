@@ -6,22 +6,34 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="job-portal-notification-service" />
         <module name="job-portal-user-service" />
         <module name="job-portal-common" />
-        <module name="job-portal-resume-service" />
-        <module name="job-portal-company-service" />
-        <module name="job-portal-application-service" />
+        <module name="job-portal-service-registry" />
+        <module name="job-portal-config-server" />
         <module name="job-portal-job-service" />
+        <module name="job-portal-preference-service" />
+        <module name="job-portal-api-gateway" />
+        <module name="job-portal-ai-service" />
+        <module name="job-portal-resume-service" />
+        <module name="job-portal-application-service" />
+        <module name="job-portal-company-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="job-portal-ai-service" options="-parameters" />
+      <module name="job-portal-api-gateway" options="-parameters" />
       <module name="job-portal-application-service" options="-parameters" />
       <module name="job-portal-common" options="-parameters" />
       <module name="job-portal-company-service" options="-parameters" />
+      <module name="job-portal-config-server" options="-parameters" />
       <module name="job-portal-job-service" options="-parameters" />
+      <module name="job-portal-notification-service" options="-parameters" />
+      <module name="job-portal-preference-service" options="-parameters" />
       <module name="job-portal-resume-service" options="-parameters" />
+      <module name="job-portal-service-registry" options="-parameters" />
       <module name="job-portal-user-service" options="-parameters" />
     </option>
   </component>

@@ -1,0 +1,23 @@
+server:
+  port: 5005
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/job_portal_Application_DB
+    username: postgres
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+      acks: all
+      retries: 3
+
+kafka:
+  topics:
+    application-submitted: application.submitted
+    application-status-changed: application.status.changed

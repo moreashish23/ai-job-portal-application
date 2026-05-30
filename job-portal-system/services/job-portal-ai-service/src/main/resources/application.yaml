@@ -1,0 +1,38 @@
+server:
+  port: 5008
+
+spring:
+  application:
+    name: job-portal-ai-service
+
+  # No database — this service is fully stateless
+
+# ── Eureka ──────────────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# ── Groq API ─────────────────────────────────────────────────────────────────
+# Free API — get your key at: https://console.groq.com
+groq:
+  api:
+    key: ${GROQ_API_KEY}
+    base-url: https://api.groq.com/openai/v1
+    model: llama-3.3-70b-versatile
+    max-tokens: 2048
+    temperature: 0.7
+    timeout: 30000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

@@ -1,6 +1,8 @@
 package com.portal.job.service.impl;
 
 import com.portal.job.dto.response.WorkExperienceResponse;
+import com.portal.job.exception.ForbiddenException;
+import com.portal.job.exception.ResourceNotFoundException;
 import com.portal.job.mapper.WorkExperienceMapper;
 import com.portal.job.modal.Resume;
 import com.portal.job.modal.WorkExperience;
@@ -25,7 +27,7 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 
     @Override
     public WorkExperienceResponse addWorkExperience(Long resumeId, Long candidateId,
-                                                    AddWorkExperience req) throws Exception {
+                                                    AddWorkExperience req) {
 
         Resume resume = resumeService.getResumeEntity(resumeId);
 
@@ -71,7 +73,7 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
     @Override
     public WorkExperienceResponse updateWorkExperience(Long resumeId, Long candidateId,
                                                        Long workExperienceId,
-                                                       AddWorkExperience req) throws Exception {
+                                                       AddWorkExperience req) {
         WorkExperience exp = getWorkExperienceEntity(workExperienceId);
         assertOwner(exp.getResume(), candidateId);
 
@@ -99,7 +101,8 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
     }
 
     @Override
-    public void deleteWorkExperience(Long resumeId, Long workExperienceId, Long candidateId) throws Exception {
+    public void deleteWorkExperience(Long resumeId, Long workExperienceId,
+                                     Long candidateId)  {
 
         WorkExperience exp = getWorkExperienceEntity(workExperienceId);
          assertOwner(exp.getResume(), candidateId);
@@ -108,16 +111,16 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
     }
 
     @Override
-    public WorkExperience getWorkExperienceEntity(Long workExperienceId) throws Exception {
+    public WorkExperience getWorkExperienceEntity(Long workExperienceId)  {
         return workExperienceRepository.findById(workExperienceId)
                 .orElseThrow(
-                        () -> new Exception("Work experience not found with id: " + workExperienceId)
+                        () -> new ResourceNotFoundException("Work experience not found with id: " , workExperienceId)
                 );
     }
 
-    private void assertOwner(Resume resume, Long candidateId) throws Exception {
+    private void assertOwner(Resume resume, Long candidateId) {
         if (!resume.getCandidateId().equals(candidateId)) {
-            throw new Exception(" Resume not found with id: ");
+            throw new ForbiddenException("You do not have access to this resume.");
         }
     }
 }
