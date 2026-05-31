@@ -51,7 +51,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/jobs",
             "/api/job-categories",
             "/api/job-skills",
-            "/api/job-tags"
+            "/api/job-tags",
+            "/api/companies"
     );
 
     @Override
